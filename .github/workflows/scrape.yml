@@ -1,0 +1,55 @@
+name: Scrape KSE All Share Index
+
+on:
+  schedule:
+    # Every 5 minutes. GitHub enforces a 5-minute floor on scheduled workflows
+    # and may delay runs further during periods of high platform load — this
+    # is a target cadence, not a guarantee.
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {}   # lets you trigger a run manually from the Actions tab
+
+permissions:
+  contents: write   # needed so the workflow can commit the updated kse.json
+
+concurrency:
+  group: kse-scrape
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    # Pre-built image with Chromium + all OS dependencies already installed,
+    # so each run starts fast instead of reinstalling Playwright every time.
+    container:
+      image: mcr.microsoft.com/playwright:v1.47.0-jammy
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm install playwright@1.47.0
+
+      - name: Run scraper
+        run: node scrape.js
+
+      - name: Commit updated data
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "kse-scraper-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add kse.json debug/ 2>/dev/null || git add kse.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update KSE index data"
+            git push
+          fi
+
+      - name: Upload debug artifacts (only kept when extraction fails)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-snapshot
+          path: debug/
+          retention-days: 3
+          if-no-files-found: ignore
