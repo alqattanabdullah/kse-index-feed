@@ -3,7 +3,7 @@ name: Scrape KSE All Share Index
 on:
   schedule:
     # Every 5 minutes. GitHub enforces a 5-minute floor on scheduled workflows
-    # and may delay runs further during periods of high platform load — this
+    # and may delay runs further during periods of high platform load - this
     # is a target cadence, not a guarantee.
     - cron: '*/5 * * * *'
   workflow_dispatch: {}   # lets you trigger a run manually from the Actions tab
@@ -40,10 +40,25 @@ jobs:
           git add kse.json debug/ 2>/dev/null || git add kse.json
           if git diff --cached --quiet; then
             echo "No changes to commit."
-          else
-            git commit -m "Update KSE index data"
-            git push
+            exit 0
           fi
+          git commit -m "Update KSE index data"
+          for i in 1 2 3 4 5; do
+            git fetch origin main
+            if git rebase origin/main; then
+              if git push origin HEAD:main; then
+                echo "Pushed successfully on attempt $i."
+                exit 0
+              fi
+              echo "Push rejected on attempt $i, retrying..."
+            else
+              echo "Rebase failed on attempt $i, aborting rebase and retrying..."
+              git rebase --abort || true
+            fi
+            sleep 5
+          done
+          echo "Failed to push after 5 attempts."
+          exit 1
 
       - name: Upload debug artifacts (only kept when extraction fails)
         if: always()
