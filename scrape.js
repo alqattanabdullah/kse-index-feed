@@ -231,20 +231,27 @@ async function saveDebugArtifacts(page) {
       // after the network goes idle.
       await page.waitForTimeout(6000);
 
-      result = await tryExtract(page);
-      if (result) {
-        console.log('  found match on default view:', result.matchedText);
-        // Default view doesn't switch to the All-Share stock table, so no
-        // per-stock scrape here — only the click path below reveals that table.
-        break;
-      }
-      console.log('  no match on default view — trying to switch to the All-Share tab');
+      // Try the click-to-reveal path FIRST, not as a fallback: it's a superset
+      // of the plain text match below (it gets the index value AND the full
+      // per-stock table), whereas the plain match alone never yields stocks.
+      // On some pages/views (e.g. the homepage ticker) the index value is
+      // already visible without any click, which would otherwise short-circuit
+      // this loop before the stock table was ever scraped.
       result = await trySwitchToAllShareTab(page);
       if (result) {
         console.log('  found match after switching tabs:', result.matchedText);
         break;
       }
-      console.log('  no match on this page even after trying to switch tabs');
+      console.log('  no click-based match — trying plain text extraction on this view');
+      result = await tryExtract(page);
+      if (result) {
+        console.log('  found match on default view:', result.matchedText);
+        // This fallback path doesn't reveal the All-Share stock table, so no
+        // per-stock data will be available this run even though the index
+        // value was found.
+        break;
+      }
+      console.log('  no match on this page at all');
     } catch (e) {
       lastError = e.message;
       console.log('  error loading page:', e.message);
