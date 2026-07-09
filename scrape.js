@@ -36,6 +36,24 @@
 // this page are delayed ~15 minutes per Boursa Kuwait's own disclosure (unlike
 // the All-Share index value, which the app treats as real-time), so the app
 // surfaces per-stock prices with an explicit "delayed ~15min" label.
+//
+// THIRD DISCOVERY (2026-07-09, diagnosing a run of silent stock-table
+// failures going back to 2026-07-07): scrapeStockTable() was returning null
+// with ZERO logging whenever it found no matching rows, even though a manual
+// check of the live site at the same time showed the exact same selectors
+// (.lazy-list-container / .ember-table-table-row / 20-cell rows) working
+// fine in an ordinary browser session. That means the failure is specific to
+// the automated/headless run (most likely a rendering/timing race under CI —
+// the virtualized grid not finishing its initial paint before we sample it,
+// or the click not having fully "taken" yet) rather than a permanent site
+// redesign. Since the previous version gave no diagnostic signal at all when
+// this happened, it was impossible to tell those two cases apart from the
+// workflow log. Fixed by: (a) always logging *something* from
+// scrapeStockTable, including exactly how many containers/rows it saw before
+// giving up, so a future failure is diagnosable from the log alone; (b)
+// increasing the wait times, which are cheap insurance against a slow CI
+// render; and (c) retrying the whole click-and-scrape sequence once before
+// giving up, since a single flaky render shouldn't waste an entire run.
 
 const { chromium } = require('playwright');
 const fs = require('fs');
@@ -47,39 +65,39 @@ const DEBUG_DIR = path.join(__dirname, 'debug');
 // Try the homepage first (often has a simple summary ticker), then the
 // dedicated Market Watch page as a fallback.
 const TARGET_URLS = [
-  'https://www.boursakuwait.com.kw/en/',
-  'https://www.boursakuwait.com.kw/en/securities/prices-and-screens/market-watch/',
-];
+    'https://www.boursakuwait.com.kw/en/',
+    'https://www.boursakuwait.com.kw/en/securities/prices-and-screens/market-watch/',
+  ];
 
-// Matches things like "All Share Index 7,123.45" or "All-Share  7,123.4" or
+// Matches things like "All Share Index 7,123.45" or "All-Share 7,123.4" or
 // "Kuwait All-Share 7,123.45" appearing anywhere in the page's visible text,
 // tolerating whatever label text/whitespace/hyphens/icons/newlines sit
 // between the words and the number. [^0-9\-]{0,60} also naturally spans
 // newlines, so this works even when the label and number sit in separate
 // DOM elements/lines, which is how Boursa Kuwait's detail panel renders it.
 const INDEX_PATTERNS = [
-  /kuwait\s*all[\s-]*share[^0-9\-]{0,60}([\d,]{3,7}\.\d{1,3})/i,
-  /all[\s-]*share\s*index[^0-9\-]{0,60}([\d,]{3,7}\.\d{1,3})/i,
-  /all[\s-]*share[^0-9\-]{0,60}([\d,]{3,7}\.\d{1,3})/i,
-];
+    /kuwait\s*all[\s-]*share[^0-9\-]{0,60}([\d,]{3,7}\.\d{1,3})/i,
+    /all[\s-]*share\s*index[^0-9\-]{0,60}([\d,]{3,7}\.\d{1,3})/i,
+    /all[\s-]*share[^0-9\-]{0,60}([\d,]{3,7}\.\d{1,3})/i,
+  ];
 
 async function tryExtract(page) {
-  const text = await page.evaluate(() => document.body.innerText || '');
-  for (const pattern of INDEX_PATTERNS) {
-    const m = text.match(pattern);
-    if (m) {
-      const val = parseFloat(m[1].replace(/,/g, ''));
-      // Sanity check: the All Share Index has historically traded in the
-      // thousands. Reject obviously-wrong matches (stray small numbers like
-      // the ticker's point-change value, e.g. "-5.26", which won't have
-      // enough digits before the decimal point to match anyway, but this is
-      // a second line of defense).
-      if (!isNaN(val) && val > 500 && val < 100000) {
-        return { value: val, matchedText: m[0].slice(0, 160) };
-      }
+    const text = await page.evaluate(() => document.body.innerText || '');
+    for (const pattern of INDEX_PATTERNS) {
+          const m = text.match(pattern);
+          if (m) {
+                  const val = parseFloat(m[1].replace(/,/g, ''));
+                  // Sanity check: the All Share Index has historically traded in the
+            // thousands. Reject obviously-wrong matches (stray small numbers like
+            // the ticker's point-change value, e.g. "-5.26", which won't have
+            // enough digits before the decimal point to match anyway, but this is
+            // a second line of defense).
+            if (!isNaN(val) && val > 500 && val < 100000) {
+                      return { value: val, matchedText: m[0].slice(0, 160) };
+            }
+          }
     }
-  }
-  return null;
+    return null;
 }
 
 // Scrapes the full per-stock price table for every Kuwait-listed symbol shown
@@ -92,82 +110,101 @@ async function tryExtract(page) {
 // table's internal viewport through a few steps, merging whatever rows are
 // rendered at each step into a map keyed by row code (which is stable even
 // though DOM node identity/position is recycled).
+//
+// IMPORTANT: always logs something before returning, even on the "found
+// nothing" path — a silent null here previously made it impossible to tell
+// a real site-structure change apart from a one-off CI rendering hiccup.
 async function scrapeStockTable(page) {
-  try {
-    const rows = await page.evaluate(async () => {
-      function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+    try {
+          const diag = await page.evaluate(async () => {
+                  function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
-      // A stock row renders as 20 cells: Code, Ticker, Name, Session, Prev,
-      // Open, High, Low, Bid, Bid Vol., Ask, Ask Vol., Curr. Price, Change,
-      // Change %, Volume, Value, Trades, 52 High, 52 Low.
-      function extractRows(container) {
-        const els = container.querySelectorAll('.ember-table-table-row');
-        const out = [];
-        els.forEach((r) => {
-          const cells = r.querySelectorAll('.ember-table-cell, [class*="ember-table-cell"]');
-          const texts = [...cells].map((c) => c.textContent.trim());
-          if (texts.length === 20) out.push(texts);
-        });
-        return out;
+                                                 // A stock row renders as 20 cells: Code, Ticker, Name, Session, Prev,
+                                                 // Open, High, Low, Bid, Bid Vol., Ask, Ask Vol., Curr. Price, Change,
+                                                 // Change %, Volume, Value, Trades, 52 High, 52 Low.
+                                                 function extractRows(container) {
+                                                           const els = container.querySelectorAll('.ember-table-table-row');
+                                                           const out = [];
+                                                           els.forEach((r) => {
+                                                                       const cells = r.querySelectorAll('.ember-table-cell, [class*="ember-table-cell"]');
+                                                                       const texts = [...cells].map((c) => c.textContent.trim());
+                                                                       if (texts.length === 20) out.push(texts);
+                                                           });
+                                                           return { rows: out, rawRowCount: els.length };
+                                                 }
+
+                                                 // Find the lazy-list-container whose rows actually look like stock data
+                                                 // (rather than hard-coding a DOM index, which could shift if the page
+                                                 // adds/removes other widgets built on the same Ember table component).
+                                                 const containers = [...document.querySelectorAll('.lazy-list-container')];
+                  let target = null;
+                  let bestRawRowCount = 0;
+                  for (const c of containers) {
+                            const { rows, rawRowCount } = extractRows(c);
+                            bestRawRowCount = Math.max(bestRawRowCount, rawRowCount);
+                            if (rows.length > 0) { target = c; break; }
+                  }
+                  if (!target) {
+                            return { rows: [], containerCount: containers.length, bestRawRowCount };
+                  }
+
+                                                 // Find the nearest scrollable ancestor (overflow-y scroll/auto with real
+                                                 // overflow) — this is the actual viewport whose scrollTop controls which
+                                                 // rows the virtualized grid renders.
+                                                 let scroller = target.parentElement;
+                  while (scroller) {
+                            const cs = getComputedStyle(scroller);
+                            if ((cs.overflowY === 'scroll' || cs.overflowY === 'auto') && scroller.scrollHeight > scroller.clientHeight + 10) break;
+                            scroller = scroller.parentElement;
+                  }
+
+                                                 const seen = new Map();
+                  extractRows(target).rows.forEach((cells) => seen.set(cells[0], cells));
+
+                                                 if (scroller) {
+                                                           const maxScroll = scroller.scrollHeight - scroller.clientHeight;
+                                                           const fractions = [0, 0.2, 0.35, 0.5, 0.65, 0.8, 1];
+                                                           for (const f of fractions) {
+                                                                       scroller.scrollTop = Math.round(maxScroll * f);
+                                                                       scroller.dispatchEvent(new Event('scroll', { bubbles: true }));
+                                                                       await sleep(500);
+                                                                       extractRows(target).rows.forEach((cells) => seen.set(cells[0], cells));
+                                                           }
+                                                 }
+                  return { rows: [...seen.values()], containerCount: containers.length, bestRawRowCount };
+          });
+
+      if (!diag.rows || diag.rows.length === 0) {
+              console.log(
+                        '  no stock rows found — containers seen:', diag.containerCount,
+                        '| best raw row count in any container (before the 20-cell filter):', diag.bestRawRowCount
+                      );
+              return null;
       }
 
-      // Find the lazy-list-container whose rows actually look like stock data
-      // (rather than hard-coding a DOM index, which could shift if the page
-      // adds/removes other widgets built on the same Ember table component).
-      const containers = [...document.querySelectorAll('.lazy-list-container')];
-      let target = null;
-      for (const c of containers) {
-        if (extractRows(c).length > 0) { target = c; break; }
-      }
-      if (!target) return [];
-
-      // Find the nearest scrollable ancestor (overflow-y scroll/auto with real
-      // overflow) — this is the actual viewport whose scrollTop controls which
-      // rows the virtualized grid renders.
-      let scroller = target.parentElement;
-      while (scroller) {
-        const cs = getComputedStyle(scroller);
-        if ((cs.overflowY === 'scroll' || cs.overflowY === 'auto') && scroller.scrollHeight > scroller.clientHeight + 10) break;
-        scroller = scroller.parentElement;
-      }
-
-      const seen = new Map();
-      extractRows(target).forEach((cells) => seen.set(cells[0], cells));
-
-      if (scroller) {
-        const maxScroll = scroller.scrollHeight - scroller.clientHeight;
-        const fractions = [0, 0.25, 0.45, 0.65, 0.85, 1];
-        for (const f of fractions) {
-          scroller.scrollTop = Math.round(maxScroll * f);
-          scroller.dispatchEvent(new Event('scroll', { bubbles: true }));
-          await sleep(300);
-          extractRows(target).forEach((cells) => seen.set(cells[0], cells));
-        }
-      }
-      return [...seen.values()];
-    });
-
-    if (!rows || rows.length === 0) return null;
-
-    const stocks = {};
-    for (const cells of rows) {
-      const code = cells[0];
-      const ticker = (cells[1] || '').trim().toUpperCase();
-      const name = (cells[2] || '').trim();
-      const priceRaw = (cells[12] || '').replace(/,/g, '');
-      const price = parseFloat(priceRaw);
-      // Skip rows with no ticker or a blank/zero current price (suspended /
-      // not-traded-today symbols show "0" here rather than a real quote).
-      if (!ticker || isNaN(price) || price <= 0) continue;
-      stocks[ticker] = { price, name, code };
-    }
+      const stocks = {};
+          for (const cells of diag.rows) {
+                  const code = cells[0];
+                  const ticker = (cells[1] || '').trim().toUpperCase();
+                  const name = (cells[2] || '').trim();
+                  const priceRaw = (cells[12] || '').replace(/,/g, '');
+                  const price = parseFloat(priceRaw);
+                  // Skip rows with no ticker or a blank/zero current price (suspended /
+            // not-traded-today symbols show "0" here rather than a real quote).
+            if (!ticker || isNaN(price) || price <= 0) continue;
+                  stocks[ticker] = { price, name, code };
+          }
     const count = Object.keys(stocks).length;
-    console.log('  scraped', count, 'individual stock prices (delayed ~15min per source)');
-    return count > 0 ? stocks : null;
-  } catch (e) {
-    console.log('  could not scrape individual stock prices:', e.message);
-    return null;
-  }
+          console.log('  scraped', count, 'individual stock prices (delayed ~15min per source)');
+          if (count === 0) {
+                  console.log('  (rows were found but none had a usable ticker/price — treating as no data)');
+                  return null;
+          }
+          return stocks;
+    } catch (e) {
+          console.log('  could not scrape individual stock prices:', e.message);
+          return null;
+    }
 }
 
 // The index's real value is hidden behind a click in Boursa Kuwait's UI (see
@@ -176,145 +213,165 @@ async function scrapeStockTable(page) {
 // panel to update, and re-extract. Tries a few candidates in case the first
 // text match isn't the clickable ticker item itself. Once the index value is
 // found, also scrapes the full per-stock table from that same revealed view.
-async function trySwitchToAllShareTab(page) {
-  try {
-    const candidates = page.getByText(/all[\s-]*share/i);
-    const count = await candidates.count().catch(() => 0);
-    for (let i = 0; i < Math.min(count, 5); i++) {
-      try {
-        await candidates.nth(i).click({ timeout: 5000 });
-        await page.waitForTimeout(2000);
-        const result = await tryExtract(page);
-        if (result) {
-          const stocks = await scrapeStockTable(page);
-          return { ...result, stocks };
-        }
-      } catch (e) {
-        // This candidate wasn't clickable or didn't reveal a value — try the next one.
-      }
+//
+// Retries the whole click-and-scrape sequence up to `attempts` times if the
+// index value is found but the stock table comes back empty — a single flaky
+// render of the virtualized grid shouldn't sacrifice an entire run's worth of
+// per-stock data when the index value itself was captured fine.
+async function trySwitchToAllShareTab(page, attempts = 2) {
+    let lastGoodResult = null;
+    for (let attempt = 1; attempt <= attempts; attempt++) {
+          try {
+                  const candidates = page.getByText(/all[\s-]*share/i);
+                  const count = await candidates.count().catch(() => 0);
+                  for (let i = 0; i < Math.min(count, 5); i++) {
+                            try {
+                                        await candidates.nth(i).click({ timeout: 5000 });
+                                        await page.waitForTimeout(3500);
+                                        const result = await tryExtract(page);
+                                        if (result) {
+                                                      const stocks = await scrapeStockTable(page);
+                                                      if (stocks) return { ...result, stocks };
+                                                      // Index value found but stock table came back empty this attempt —
+                                          // remember it in case every retry fails to get stocks, but keep
+                                          // trying so a later attempt has a chance to also capture stocks.
+                                          lastGoodResult = { ...result, stocks: null };
+                                        }
+                            } catch (e) {
+                                        // This candidate wasn't clickable or didn't reveal a value — try the next one.
+                            }
+                  }
+          } catch (e) {
+                  console.log('  could not attempt All-Share tab switch (attempt', attempt, '):', e.message);
+          }
+          if (attempt < attempts && lastGoodResult) {
+                  console.log('  index value found but stock table was empty on attempt', attempt, '— retrying once more');
+                  await page.waitForTimeout(2000);
+          }
     }
-  } catch (e) {
-    console.log('  could not attempt All-Share tab switch:', e.message);
-  }
-  return null;
+    return lastGoodResult;
 }
 
 async function saveDebugArtifacts(page) {
-  try {
-    fs.mkdirSync(DEBUG_DIR, { recursive: true });
-    await page.screenshot({ path: path.join(DEBUG_DIR, 'last-page.png'), fullPage: true }).catch(() => {});
-    const text = await page.evaluate(() => document.body.innerText || '').catch(() => '');
-    fs.writeFileSync(path.join(DEBUG_DIR, 'last-page-text.txt'), text);
-  } catch (e) {
-    console.log('Could not save debug artifacts:', e.message);
-  }
+    try {
+          fs.mkdirSync(DEBUG_DIR, { recursive: true });
+          await page.screenshot({ path: path.join(DEBUG_DIR, 'last-page.png'), fullPage: true }).catch(() => {});
+          const text = await page.evaluate(() => document.body.innerText || '').catch(() => '');
+          fs.writeFileSync(path.join(DEBUG_DIR, 'last-page-text.txt'), text);
+    } catch (e) {
+          console.log('  could not save debug artifacts:', e.message);
+    }
 }
 
 (async () => {
-  const browser = await chromium.launch();
-  const page = await browser.newPage({
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
-    viewport: { width: 1366, height: 900 },
-  });
-  page.setDefaultTimeout(45000);
+    const browser = await chromium.launch();
+    const page = await browser.newPage({
+          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+          viewport: { width: 1366, height: 900 },
+    });
+    page.setDefaultTimeout(45000);
 
-  let result = null;
-  let lastError = null;
+   let result = null;
+    let lastError = null;
 
-  for (const url of TARGET_URLS) {
+   for (const url of TARGET_URLS) {
+         try {
+                 console.log('Loading', url);
+                 await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 }).catch((e) => {
+                           console.log('  goto did not fully settle (continuing anyway):', e.message);
+                 });
+                 // Give the Ember/JS app extra time to finish rendering dynamic data
+           // after the network goes idle. Bumped from 6000ms -> 9000ms: CI runs
+           // occasionally saw the virtualized stock table not fully painted yet
+           // at the old wait, even though the index value (a simpler DOM read)
+           // had already resolved.
+           await page.waitForTimeout(9000);
+
+           // Try the click-to-reveal path FIRST, not as a fallback: it's a superset
+           // of the plain text match below (it gets the index value AND the full
+           // stock table, whereas the plain-text path below only ever gets the
+           // index value on its own — some views work with one, some with the
+           // other, so we don't want to stop at whichever check happens to
+           // resolve first: e.g. a page reload could make the plain-text match
+           // work but the table scrape errors, or vice versa).
+           result = await trySwitchToAllShareTab(page);
+                 if (result) {
+                           console.log('  found match after switching tabs:', result.matchedText);
+                           break;
+                 }
+                 console.log('  no click-based match — trying plain text extraction on this view');
+                 result = await tryExtract(page);
+                 if (result) {
+                           console.log('  found match on default view:', result.matchedText);
+                           // This fallback path doesn't reveal the All-Share stock table, so no
+                   // per-stock data will be available this run even though the index
+                   // value was found.
+                   break;
+                 }
+                 console.log('  no match on this page at all');
+         } catch (e) {
+                 lastError = e.message;
+                 console.log('  error loading/reading this page:', e.message);
+         }
+   }
+
+   if (!result) {
+         await saveDebugArtifacts(page);
+   }
+
+   await browser.close();
+
+   const now = new Date().toISOString();
+
+   // Never destroy the last known-good value(s) on a failed run — start from
+   // whatever's already on disk and only overwrite the parts that succeeded.
+   let prev = {};
     try {
-      console.log('Loading', url);
-      await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 }).catch((e) => {
-        console.log('  goto did not fully settle (continuing anyway):', e.message);
-      });
-      // Give the Ember/JS app extra time to finish rendering dynamic data
-      // after the network goes idle.
-      await page.waitForTimeout(6000);
-
-      // Try the click-to-reveal path FIRST, not as a fallback: it's a superset
-      // of the plain text match below (it gets the index value AND the full
-      // per-stock table), whereas the plain match alone never yields stocks.
-      // On some pages/views (e.g. the homepage ticker) the index value is
-      // already visible without any click, which would otherwise short-circuit
-      // this loop before the stock table was ever scraped.
-      result = await trySwitchToAllShareTab(page);
-      if (result) {
-        console.log('  found match after switching tabs:', result.matchedText);
-        break;
-      }
-      console.log('  no click-based match — trying plain text extraction on this view');
-      result = await tryExtract(page);
-      if (result) {
-        console.log('  found match on default view:', result.matchedText);
-        // This fallback path doesn't reveal the All-Share stock table, so no
-        // per-stock data will be available this run even though the index
-        // value was found.
-        break;
-      }
-      console.log('  no match on this page at all');
+          prev = JSON.parse(fs.readFileSync(OUTPUT_FILE, 'utf8'));
     } catch (e) {
-      lastError = e.message;
-      console.log('  error loading page:', e.message);
+          /* first run ever, or file missing/corrupt — start from empty */
     }
-  }
 
-  if (!result) {
-    await saveDebugArtifacts(page);
-  }
+   let output;
+    if (result) {
+          output = {
+                  ...prev,
+                  value: result.value,
+                  unit: 'points',
+                  label: 'Kuwait All Share Index',
+                  source: 'boursakuwait.com.kw (scraped)',
+                  matchedText: result.matchedText,
+                  updatedAt: now,
+                  status: 'ok',
+          };
+          console.log('SUCCESS:', JSON.stringify({ value: output.value, updatedAt: output.updatedAt, status: output.status }));
+    } else {
+          output = {
+                  ...prev,
+                  status: 'stale',
+                  lastError: lastError || 'Could not locate the All Share Index value on any target page.',
+                  lastAttemptAt: now,
+          };
+          console.log('FAILED (index value):', output.lastError);
+    }
 
-  await browser.close();
+   // Stock table has its own independent success/failure (see comment at the
+   // top of fetchKSE()'s caller in the app, and the THIRD DISCOVERY note above
+   // this file's header for why this branch used to fail silently).
+   if (result && result.stocks) {
+         output.stocks = result.stocks;
+         output.stocksCount = Object.keys(result.stocks).length;
+         output.stocksUpdatedAt = now;
+         output.stocksStatus = 'ok';
+         output.stocksError = '';
+   } else {
+         output.stocksStatus = 'stale';
+         output.stocksError = result ? 'Reached the All-Share view but could not read the stock table.' : (lastError || 'Could not reach the All-Share stock table.');
+         output.stocksLastAttemptAt = now;
+   }
 
-  const now = new Date().toISOString();
-
-  // Never destroy the last known-good value(s) on a failed run — start from
-  // whatever's already on disk and only overwrite the parts that succeeded.
-  let prev = {};
-  try {
-    prev = JSON.parse(fs.readFileSync(OUTPUT_FILE, 'utf8'));
-  } catch (e) {
-    /* first run ever, or file missing/corrupt — start from empty */
-  }
-
-  let output;
-  if (result) {
-    output = {
-      ...prev,
-      value: result.value,
-      unit: 'points',
-      label: 'Kuwait All Share Index',
-      source: 'boursakuwait.com.kw (scraped)',
-      matchedText: result.matchedText,
-      updatedAt: now,
-      status: 'ok',
-    };
-    console.log('SUCCESS:', JSON.stringify({ value: output.value, updatedAt: output.updatedAt, status: output.status }));
- } else {
-    output = {
-      ...prev,
-      status: 'stale',
-      lastError: lastError || 'Could not locate the All Share Index value on either page.',
-      lastAttemptAt: now,
-    };
-    console.log('FAILED to extract the index value — keeping last known value (if any). Error:', output.lastError);
-  }
-
-  // Stock-level data has its own independent status, since the index value
-  // and the per-stock table can succeed/fail separately (e.g. index extraction
-  // works but the table scrape errors, or vice versa).
-  if (result && result.stocks) {
-    output.stocks = result.stocks;
-    output.stocksCount = Object.keys(result.stocks).length;
-    output.stocksUpdatedAt = now;
-    output.stocksStatus = 'ok';
-    output.stocksError = '';
-  } else {
-    output.stocksStatus = 'stale';
-    output.stocksError = result ? 'Reached the All-Share view but could not read the stock table.' : (lastError || 'Could not reach the All-Share stock table.');
-    output.stocksLastAttemptAt = now;
-  }
-
-  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(output, null, 2) + '\n');
+   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(output, null, 2) + '\n');
 })().catch((e) => {
-  console.error('Fatal scraper error:', e);
-  process.exit(1);
+    console.error('Fatal scraper error:', e);
+    process.exit(1);
 });
