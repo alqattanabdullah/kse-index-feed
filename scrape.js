@@ -267,7 +267,7 @@ async function saveDebugArtifacts(page) {
     const browser = await chromium.launch();
     const page = await browser.newPage({
           userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
-          viewport: { width: 1366, height: 900 },
+          viewport: { width: 1366, height: 2200 },
     });
     page.setDefaultTimeout(45000);
 
