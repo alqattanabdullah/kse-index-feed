@@ -4,7 +4,7 @@
   "label": "Kuwait All Share Index",
   "source": "boursakuwait.com.kw (scraped)",
   "matchedText": "All-Share \n8,649.94",
-  "updatedAt": "2026-07-15T12:09:03.447Z",
+  "updatedAt": "2026-07-15T16:55:11.393Z",
   "status": "ok",
   "stocksStatus": "ok",
   "stocksError": "",
@@ -662,5 +662,5 @@
     }
   },
   "stocksCount": 130,
-  "stocksUpdatedAt": "2026-07-15T12:09:03.447Z"
+  "stocksUpdatedAt": "2026-07-15T16:55:11.393Z"
 }
