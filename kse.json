@@ -3,12 +3,12 @@
   "unit": "points",
   "label": "Kuwait All Share Index",
   "source": "boursakuwait.com.kw (scraped)",
-  "matchedText": "All-Share \n8,664.52",
-  "updatedAt": "2026-07-17T12:00:42.140Z",
+  "matchedText": "All-Share\n8,664.52",
+  "updatedAt": "2026-07-17T16:39:13.496Z",
   "status": "ok",
-  "stocksStatus": "ok",
-  "stocksError": "",
-  "stocksLastAttemptAt": "2026-07-17T07:34:47.270Z",
+  "stocksStatus": "stale",
+  "stocksError": "Reached the All-Share view but could not read the stock table.",
+  "stocksLastAttemptAt": "2026-07-17T16:39:13.496Z",
   "stocks": {
     "NBK": {
       "price": 806,
