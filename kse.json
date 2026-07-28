@@ -1,87 +1,92 @@
 {
-  "value": 8758.63,
+  "value": 8766.09,
   "unit": "points",
   "label": "Kuwait All Share Index",
   "source": "boursakuwait.com.kw (scraped)",
-  "matchedText": "All-Share\n8,758.63",
-  "updatedAt": "2026-07-28T07:48:17.372Z",
+  "matchedText": "All-Share \n8,766.09",
+  "updatedAt": "2026-07-28T15:55:11.003Z",
   "status": "ok",
-  "stocksStatus": "stale",
-  "stocksError": "Reached the All-Share view but could not read the stock table.",
+  "stocksStatus": "ok",
+  "stocksError": "",
   "stocksLastAttemptAt": "2026-07-28T07:48:17.372Z",
   "stocks": {
     "NBK": {
-      "price": 845,
+      "price": 857,
       "name": "National Bank of Kuwait",
       "code": "101"
     },
     "GBK": {
-      "price": 348,
+      "price": 347,
       "name": "Gulf Bank KSCP",
       "code": "102"
     },
     "CBK": {
-      "price": 494,
+      "price": 495,
       "name": "Commercial Bank of Kuwait",
       "code": "103"
     },
     "ABK": {
-      "price": 265,
+      "price": 270,
       "name": "Al Ahli Bank of Kuwait",
       "code": "104"
     },
     "KIB": {
-      "price": 254,
+      "price": 255,
       "name": "Kuwait International Bank",
       "code": "106"
     },
     "BURG": {
-      "price": 190,
+      "price": 191,
       "name": "Burgan Bank",
       "code": "107"
     },
     "KFH": {
-      "price": 780,
+      "price": 784,
       "name": "Kuwait Finance House",
       "code": "108"
     },
     "BOUBYAN": {
-      "price": 636,
+      "price": 640,
       "name": "Boubyan Bank",
       "code": "109"
     },
     "KINV": {
-      "price": 189,
+      "price": 190,
       "name": "Kuwait Investment Co KSCP",
       "code": "201"
     },
+    "FACIL": {
+      "price": 273,
+      "name": "Commercial Facilities Co S.A.K",
+      "code": "202"
+    },
     "IFA": {
-      "price": 355,
+      "price": 367,
       "name": "International Financial Advisors Holding",
       "code": "203"
     },
     "NINV": {
-      "price": 264,
+      "price": 261,
       "name": "National Investments Co",
       "code": "204"
     },
     "KPROJ": {
-      "price": 79.4,
+      "price": 80.1,
       "name": "Kuwait Projects Holding",
       "code": "205"
     },
     "COAST": {
-      "price": 73.6,
+      "price": 73.9,
       "name": "Coast Investment and Development",
       "code": "207"
     },
     "SECH": {
-      "price": 84.5,
+      "price": 85,
       "name": "The Securities House K.S.C",
       "code": "209"
     },
     "ARZAN": {
-      "price": 323,
+      "price": 322,
       "name": "Arzan Financial Group For Financing And Investment",
       "code": "212"
     },
@@ -91,7 +96,7 @@
       "code": "213"
     },
     "KMEFIC": {
-      "price": 155,
+      "price": 157,
       "name": "Kuwait and Middle East Financial Investment",
       "code": "214"
     },
@@ -101,7 +106,7 @@
       "code": "219"
     },
     "GIH": {
-      "price": 532,
+      "price": 529,
       "name": "Gulf Investment House",
       "code": "221"
     },
@@ -111,12 +116,12 @@
       "code": "222"
     },
     "BAYANINV": {
-      "price": 70.5,
+      "price": 71.8,
       "name": "Bayan Investment Holding Co.",
       "code": "223"
     },
     "OSOUL": {
-      "price": 258,
+      "price": 254,
       "name": "Osoul Investment",
       "code": "225"
     },
@@ -126,92 +131,87 @@
       "code": "227"
     },
     "KAMCO": {
-      "price": 208,
+      "price": 205,
       "name": "KAMCO Investment",
       "code": "228"
     },
     "NIH": {
-      "price": 179,
+      "price": 177,
       "name": "National International Holding K.S.C",
       "code": "231"
     },
     "UNICAP": {
-      "price": 296,
+      "price": 291,
       "name": "Unicap Investment and Finance",
       "code": "232"
     },
     "MADAR": {
-      "price": 118,
+      "price": 119,
       "name": "AL Madar Kuwait Holding Co.",
       "code": "233"
     },
     "ALDEERA": {
-      "price": 465,
+      "price": 453,
       "name": "Al Deera Holding",
       "code": "234"
     },
     "ALSAFAT": {
-      "price": 194,
+      "price": 196,
       "name": "AL-SAFAT INVESTMENT CO. K.S.C.C",
       "code": "235"
     },
     "EKTTITAB": {
-      "price": 34.3,
+      "price": 34.2,
       "name": "Ekttitab Holding",
       "code": "237"
     },
     "SOKOUK": {
-      "price": 77.7,
+      "price": 77.5,
       "name": "Sokouk Holding",
       "code": "239"
     },
     "NOOR": {
-      "price": 422,
+      "price": 417,
       "name": "Noor Financial Investment Co",
       "code": "241"
     },
     "EMIRATES": {
-      "price": 147,
+      "price": 138,
       "name": "Kuwait Emirates Holding Company (K.S.C.P)",
       "code": "245"
     },
     "ASIYA": {
-      "price": 44.5,
+      "price": 43.5,
       "name": "Asiya Capital Investments Co",
       "code": "247"
     },
     "RASIYAT": {
-      "price": 620,
+      "price": 622,
       "name": "Rasiyat Holding Company K.P.S.C.",
       "code": "249"
     },
     "ALIMTIAZ": {
-      "price": 75.1,
+      "price": 74.8,
       "name": "Alimtiaz Group Holding Company (K.S.C.P)",
       "code": "252"
     },
     "KINS": {
-      "price": 461,
+      "price": 459,
       "name": "Kuwait Insurance Co S.A.K",
       "code": "301"
     },
-    "GINS": {
-      "price": 1150,
-      "name": "Gulf Insurance Group",
-      "code": "302"
-    },
     "AINS": {
-      "price": 704,
+      "price": 710,
       "name": "Al Ahleia Insurance Co S.A.K.P.",
       "code": "303"
     },
     "WINSRE": {
-      "price": 164,
+      "price": 165,
       "name": "WARBA INSURANCE AND REINSURANCE COMPANY (K.S.C.P)",
       "code": "304"
     },
     "FTI": {
-      "price": 215,
+      "price": 211,
       "name": "First Takaful Insurance",
       "code": "306"
     },
@@ -226,12 +226,12 @@
       "code": "401"
     },
     "URC": {
-      "price": 281,
+      "price": 280,
       "name": "United Real Estate K.S.C",
       "code": "402"
     },
     "NRE": {
-      "price": 138,
+      "price": 136,
       "name": "National Real Estate Co K.S.C",
       "code": "403"
     },
@@ -251,12 +251,12 @@
       "code": "412"
     },
     "MABANEE": {
-      "price": 923,
+      "price": 916,
       "name": "Mabanee Co K.P.S.C",
       "code": "413"
     },
     "INJAZZAT": {
-      "price": 155,
+      "price": 153,
       "name": "Injazzat Real Estate Development",
       "code": "414"
     },
@@ -266,42 +266,42 @@
       "code": "418"
     },
     "SANAM": {
-      "price": 330,
+      "price": 327,
       "name": "SANAM Group Holding Company K.P.S.C",
       "code": "419"
     },
     "AAYANRE": {
-      "price": 192,
+      "price": 189,
       "name": "Aayan Real Estate Co KSCP",
       "code": "420"
     },
     "AQAR": {
-      "price": 112,
+      "price": 114,
       "name": "Aqar Real Estate Investments",
       "code": "421"
     },
     "ALAQARIA": {
-      "price": 66.9,
+      "price": 67.1,
       "name": "Kuwait Real Estate Holding",
       "code": "422"
     },
     "MAZAYA": {
-      "price": 76.7,
+      "price": 76.5,
       "name": "Al Mazaya Holding",
       "code": "423"
     },
     "TIJARA": {
-      "price": 185,
+      "price": 189,
       "name": "Tijara and Real Estate Investment",
       "code": "427"
     },
     "ARKAN": {
-      "price": 298,
+      "price": 307,
       "name": "Arkan Al Kuwait Real Estate",
       "code": "429"
     },
     "ARGAN": {
-      "price": 120,
+      "price": 117,
       "name": "Alargan International Real Estate",
       "code": "431"
     },
@@ -311,7 +311,7 @@
       "code": "433"
     },
     "KBT": {
-      "price": 80,
+      "price": 79.4,
       "name": "Kuwait Business Town Real Estate",
       "code": "435"
     },
@@ -326,22 +326,22 @@
       "code": "438"
     },
     "MARAKEZ": {
-      "price": 177,
+      "price": 178,
       "name": "Marakez Real Estate Development Company (K.P.S.C)",
       "code": "440"
     },
     "NIND": {
-      "price": 230,
+      "price": 229,
       "name": "National Industries Group Holding",
       "code": "501"
     },
     "KCEM": {
-      "price": 395,
+      "price": 393,
       "name": "Kuwait Cement K.P.S.C.",
       "code": "503"
     },
     "CABLE": {
-      "price": 1689,
+      "price": 1677,
       "name": "Gulf Cables and Electrical Industries Group Co. (K.S.C.P)",
       "code": "505"
     },
@@ -351,37 +351,37 @@
       "code": "506"
     },
     "PCEM": {
-      "price": 631,
+      "price": 648,
       "name": "Kuwait Portland Cement",
       "code": "508"
     },
     "SHUAIBA": {
-      "price": 268,
+      "price": 269,
       "name": "Shuaiba Industrial Co. (K.S.P.C)",
       "code": "509"
     },
     "MRC": {
-      "price": 155,
+      "price": 154,
       "name": "Metal and Recycling",
       "code": "510"
     },
     "KFOUC": {
-      "price": 485,
+      "price": 486,
       "name": "Kuwait Foundry",
       "code": "511"
     },
     "ACICO": {
-      "price": 583,
+      "price": 581,
       "name": "Acico Industries",
       "code": "512"
     },
     "BPCC": {
-      "price": 610,
+      "price": 615,
       "name": "Boubyan Petrochemical Co KSCP",
       "code": "514"
     },
     "ALKOUT": {
-      "price": 745,
+      "price": 747,
       "name": "Al Kout Industrial Projects",
       "code": "517"
     },
@@ -391,17 +391,17 @@
       "code": "520"
     },
     "EQUIPMENT": {
-      "price": 228,
+      "price": 238,
       "name": "Equipment Holding",
       "code": "522"
     },
     "NCCI": {
-      "price": 99.5,
+      "price": 98.3,
       "name": "National Consumer Holding Co",
       "code": "524"
     },
     "WARBACAP": {
-      "price": 719,
+      "price": 735,
       "name": "Warba Capital Holding Co",
       "code": "529"
     },
@@ -411,7 +411,7 @@
       "code": "601"
     },
     "KHOT": {
-      "price": 205,
+      "price": 193,
       "name": "Kuwait Hotels Co KSCP",
       "code": "602"
     },
@@ -421,17 +421,17 @@
       "code": "603"
     },
     "ZAIN": {
-      "price": 613,
+      "price": 612,
       "name": "Mobile Telecommunications",
       "code": "605"
     },
     "SENERGY": {
-      "price": 237,
+      "price": 240,
       "name": "Senergy Holding Co",
       "code": "606"
     },
     "IPG": {
-      "price": 648,
+      "price": 651,
       "name": "Independent Petroleum Group KSCP",
       "code": "608"
     },
@@ -441,14 +441,19 @@
       "code": "609"
     },
     "OOREDOO": {
-      "price": 1727,
+      "price": 1674,
       "name": "National Mobile Telecommunications",
       "code": "613"
     },
     "ASC": {
-      "price": 720,
+      "price": 735,
       "name": "Automated Systems Co KPSC",
       "code": "616"
+    },
+    "NAPESCO": {
+      "price": 1460,
+      "name": "National Petroleum Services",
+      "code": "617"
     },
     "KCPC": {
       "price": 316,
@@ -456,22 +461,22 @@
       "code": "618"
     },
     "HUMANSOFT": {
-      "price": 2384,
+      "price": 2386,
       "name": "Human Soft Holding",
       "code": "623"
     },
     "KPPC": {
-      "price": 142,
+      "price": 143,
       "name": "Privatization Holding",
       "code": "624"
     },
     "ENERGYH": {
-      "price": 255,
+      "price": 258,
       "name": "The Energy House Holding",
       "code": "627"
     },
     "GFC": {
-      "price": 369,
+      "price": 335,
       "name": "Gulf Franchising Holding",
       "code": "630"
     },
@@ -481,22 +486,22 @@
       "code": "631"
     },
     "ABAR": {
-      "price": 187,
+      "price": 183,
       "name": "Burgan Company for Well Drilling, Trading and Maintenance",
       "code": "633"
     },
     "IFAHR": {
-      "price": 606,
+      "price": 597,
       "name": "IFA Hotels and Resorts",
       "code": "634"
     },
     "CGC": {
-      "price": 900,
+      "price": 922,
       "name": "Combined Group Contracting KSCP",
       "code": "635"
     },
     "PAPCO": {
-      "price": 280,
+      "price": 274,
       "name": "Palms Agro Production",
       "code": "637"
     },
@@ -506,27 +511,27 @@
       "code": "638"
     },
     "UPAC": {
-      "price": 195,
+      "price": 198,
       "name": "United Projects Co for Aviation Services",
       "code": "640"
     },
     "MASHAER": {
-      "price": 127,
+      "price": 128,
       "name": "Mashaer Holding",
       "code": "644"
     },
     "OULAFUEL": {
-      "price": 329,
+      "price": 328,
       "name": "Oula Fuel Marketing",
       "code": "645"
     },
     "DIGITUS": {
-      "price": 1659,
+      "price": 1660,
       "name": "Digitus Group for Digital Infrastructure, Data Centers & Communications KSCP",
       "code": "649"
     },
     "MUBARRAD": {
-      "price": 126,
+      "price": 128,
       "name": "MUBARRAD HOLDING COMPANY K.S.C.P",
       "code": "650"
     },
@@ -535,13 +540,8 @@
       "name": "Kuwait Resorts",
       "code": "651"
     },
-    "ATC": {
-      "price": 547,
-      "name": "Advanced Technology",
-      "code": "652"
-    },
     "JAZEERA": {
-      "price": 1707,
+      "price": 1691,
       "name": "Jazeera Airways Co K.S.C.P",
       "code": "654"
     },
@@ -551,12 +551,12 @@
       "code": "655"
     },
     "FUTUREKID": {
-      "price": 101,
+      "price": 99.6,
       "name": "Future Kid Entertainment and Real Estate",
       "code": "657"
     },
     "CATTL": {
-      "price": 121,
+      "price": 118,
       "name": "Livestock Transport and Trading Co KSC",
       "code": "701"
     },
@@ -571,7 +571,7 @@
       "code": "813"
     },
     "INOVEST": {
-      "price": 99.2,
+      "price": 99.1,
       "name": "Inovest BSC",
       "code": "817"
     },
@@ -581,17 +581,17 @@
       "code": "821"
     },
     "STC": {
-      "price": 638,
+      "price": 633,
       "name": "Kuwait Telecommunications",
       "code": "822"
     },
     "MEZZAN": {
-      "price": 1100,
+      "price": 1097,
       "name": "Mezzan Holding Co",
       "code": "823"
     },
     "INTEGRATED": {
-      "price": 417,
+      "price": 415,
       "name": "Integrated Holding Co KSC",
       "code": "824"
     },
@@ -601,27 +601,27 @@
       "code": "825"
     },
     "AZNOULA": {
-      "price": 146,
+      "price": 145,
       "name": "Shamal Az-Zour Al-Oula Power and Water Co K.S.C.P",
       "code": "826"
     },
     "BOURSA": {
-      "price": 2828,
+      "price": 2810,
       "name": "Boursa Kuwait Securities Co KPSC",
       "code": "827"
     },
     "JTC": {
-      "price": 417,
+      "price": 422,
       "name": "JTC Logistics Transportation & Stevedoring Company K.S.C.P",
       "code": "829"
     },
     "ALG": {
-      "price": 882,
+      "price": 879,
       "name": "Ali Alghanim Sons Automotive Company K.S.C.",
       "code": "830"
     },
     "BEYOUT": {
-      "price": 340,
+      "price": 344,
       "name": "Beyout Holding Company (K.P.S.C)",
       "code": "831"
     },
@@ -631,23 +631,23 @@
       "code": "2010"
     },
     "MIDAN": {
-      "price": 1026,
+      "price": 979,
       "name": "Al Maidan Clinic for Oral Health Services Co KSC",
       "code": "2014"
     },
     "THURAYA": {
-      "price": 209,
+      "price": 213,
       "name": "Dar Al Thuraya Real Estate",
       "code": "2017"
     },
     "AMAR": {
-      "price": 105,
+      "price": 109,
       "name": "Amar for Finance and Leasing",
       "code": "2019"
     }
   },
   "stocksCount": 127,
-  "stocksUpdatedAt": "2026-07-27T12:01:23.783Z",
+  "stocksUpdatedAt": "2026-07-28T15:55:11.003Z",
   "lastError": "Could not locate the All Share Index value on any target page.",
   "lastAttemptAt": "2026-07-27T21:52:30.320Z"
 }
