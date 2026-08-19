@@ -1,14 +1,14 @@
 {
-  "value": 8774.14,
+  "value": 8821.28,
   "unit": "points",
   "label": "Kuwait All Share Index",
   "source": "boursakuwait.com.kw (scraped)",
-  "matchedText": "All-Share\n8,774.14",
-  "updatedAt": "2026-08-18T11:53:03.081Z",
-  "status": "stale",
+  "matchedText": "All-Share\n8,821.28",
+  "updatedAt": "2026-08-19T14:00:21.970Z",
+  "status": "ok",
   "stocksStatus": "stale",
-  "stocksError": "Could not reach the All-Share stock table.",
-  "stocksLastAttemptAt": "2026-08-19T13:15:13.850Z",
+  "stocksError": "Reached the All-Share view but could not read the stock table.",
+  "stocksLastAttemptAt": "2026-08-19T14:00:21.970Z",
   "stocks": {
     "NBK": {
       "price": 857,
