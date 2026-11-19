@@ -8,7 +8,7 @@
   "status": "stale",
   "stocksStatus": "stale",
   "stocksError": "Could not reach the All-Share stock table.",
-  "stocksLastAttemptAt": "2026-11-18T18:21:36.720Z",
+  "stocksLastAttemptAt": "2026-11-19T00:36:04.171Z",
   "stocks": {
     "NBK": {
       "price": 870,
@@ -649,5 +649,5 @@
   "stocksCount": 127,
   "stocksUpdatedAt": "2026-11-10T15:41:12.332Z",
   "lastError": "Could not locate the All Share Index value on any target page.",
-  "lastAttemptAt": "2026-11-18T18:21:36.720Z"
+  "lastAttemptAt": "2026-11-19T00:36:04.171Z"
 }
