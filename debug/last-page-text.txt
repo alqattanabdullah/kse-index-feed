@@ -1,6 +1,6 @@
 Access Denied
 You don't have permission to access "http://www.boursakuwait.com.kw/en/securities/prices-and-screens/market-watch/" on this server.
 
-Reference #18.6751c317.1795131054.3e9f4605
+Reference #18.361ec517.1795148033.15d9799a
 
-https://errors.edgesuite.net/18.6751c317.1795131054.3e9f4605
+https://errors.edgesuite.net/18.361ec517.1795148033.15d9799a
