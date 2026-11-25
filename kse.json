@@ -5,10 +5,10 @@
   "source": "boursakuwait.com.kw (scraped)",
   "matchedText": "All-Share\n8,504.87",
   "updatedAt": "2026-11-25T13:37:32.030Z",
-  "status": "ok",
+  "status": "stale",
   "stocksStatus": "stale",
-  "stocksError": "Reached the All-Share view but could not read the stock table.",
-  "stocksLastAttemptAt": "2026-11-25T13:37:32.030Z",
+  "stocksError": "Could not reach the All-Share stock table.",
+  "stocksLastAttemptAt": "2026-11-25T22:45:20.848Z",
   "stocks": {
     "NBK": {
       "price": 870,
@@ -649,5 +649,5 @@
   "stocksCount": 127,
   "stocksUpdatedAt": "2026-11-10T15:41:12.332Z",
   "lastError": "Could not locate the All Share Index value on any target page.",
-  "lastAttemptAt": "2026-11-25T03:46:11.503Z"
+  "lastAttemptAt": "2026-11-25T22:45:20.848Z"
 }
